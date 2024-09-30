@@ -1,6 +1,6 @@
 package com.example.Invoice.System.Service;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.example.Invoice.System.Entity.Users;
 import com.example.Invoice.System.Repo.UsersRepo;
 import com.example.Invoice.System.requests.LoginRequest;
@@ -18,7 +18,7 @@ public class UsersService {
     UsersRepo usersRepo;
 
     // BCrypt encoder
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+//    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public Users addUser(Users user) throws Exception{
 
@@ -33,8 +33,8 @@ public class UsersService {
             throw new Exception("Password not match. Password should be same!");
         }
 
-        String hashedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(hashedPassword);
+//        String hashedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(user.getPassword());
 
         return usersRepo.save(user);
 
@@ -56,7 +56,11 @@ public class UsersService {
         Users user1 = user.get();
 
         // Compare the password
-        if (!passwordEncoder.matches(password, user1.getPassword())) {
+//        if (!passwordEncoder.matches(password, user1.getPassword())) {
+//            return false;
+//        }
+
+        if(!password.equals(user1.getPassword())){
             return false;
         }
         return true;
