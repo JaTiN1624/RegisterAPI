@@ -8,14 +8,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class UsersService {
 //    @Autowired
 //    LoginRequest loginRequest;
 
+    private final EmailService emailService;
+
     @Autowired
     UsersRepo usersRepo;
+
+    public UsersService(EmailService emailService) {
+        this.emailService = emailService;
+    }
+
+
+//    public UsersService(EmailService emailService) {
+//        this.emailService = emailService;
+//    }
 
     // BCrypt encoder
 //    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -25,21 +37,49 @@ public class UsersService {
         Optional<Users> existingUser = usersRepo.findByEmail(user.getEmail());
 
 
-        if(existingUser.isPresent()){
+        if(existingUser.isPresent()  && existingUser .get().getVerified()){
             throw new Exception("Email already Exist. Please try different one.");
         }
 
         if(!user.getcPassword().equals(user.getPassword())){
             throw new Exception("Password not match. Password should be same!");
         }
-
 //        String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(user.getPassword());
+        String otp = generatedOtp();
+        user.setOtp(otp);
+        Users savedUser =  usersRepo.save(user);
+        sendVerificationEmail(savedUser.getEmail(), otp);
 
-        return usersRepo.save(user);
-
+        return savedUser;
+    }
+    public void verify(String email, String otp) {
+        Optional<Users> users = usersRepo.findByEmail(email);
+        if (users.isEmpty()) {
+            throw new RuntimeException("User   not found!");
+        }
+        Users user = users.get();
+        if (user.getOtp().equals(otp)) {
+            user.setVerified(true); // Update verified to 1
+            usersRepo.save(user);
+        } else {
+            throw new RuntimeException("Invalid OTP!");
+        }
     }
 
+    private String generatedOtp(){
+        Random random = new Random();
+        int otpValue = 100000 + random.nextInt(900000);
+
+        return String.valueOf(otpValue);
+    }
+
+    private void sendVerificationEmail(String email,String otp){
+        String subject = "Email verification ";
+        String body = "Your verification otp is: " + otp;
+
+        emailService.sendEmail(email,subject,body);
+    }
 
     public boolean loginUser(LoginRequest loginRequest){
         String email = loginRequest.getEmail();
@@ -65,4 +105,6 @@ public class UsersService {
         }
         return true;
     }
+
+
 }

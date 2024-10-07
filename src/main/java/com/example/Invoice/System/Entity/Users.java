@@ -19,11 +19,16 @@ public class Users {
     @Column(unique = true, nullable = false)
     private String email;
 
+    private String otp;
+
     private String password;
 
 //    this field doesn't save in database
     @Transient
     private String cPassword;
+
+
+    private boolean verified;
 
 //    default Constructor
     public Users(){
@@ -31,12 +36,14 @@ public class Users {
     }
 
 //   Parameterized Constructor
-    public Users(String firstName, String lastName, String email, String password, String cPassword) {
+    public Users(String firstName, String lastName, String email,String otp, String password, String cPassword, boolean verified) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.otp = otp;
         this.password = password;
         this.cPassword = cPassword;
+        this.verified = verified;
     }
 
 //    Getter and Setter
@@ -72,6 +79,14 @@ public class Users {
         this.email = email;
     }
 
+    public String getOtp() {
+        return otp;
+    }
+
+    public void setOtp(String otp) {
+        this.otp = otp;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -86,5 +101,13 @@ public class Users {
 
     public void setcPassword(String cPassword) {
         this.cPassword = cPassword;
+    }
+
+    public boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
     }
 }
