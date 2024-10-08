@@ -16,8 +16,8 @@ public class usersController {
 
     @Autowired
     UsersService userService;
-//    @PostMapping("/addUser")
-    @RequestMapping(value = "/addUser    ", method = RequestMethod.POST)
+    @PostMapping("/addUser")
+//    @RequestMapping(value = "/addUser", method = RequestMethod.POST)
     @CrossOrigin(origins = "*")
     public ResponseEntity<?> addUser(@RequestBody Users user){
 
@@ -30,8 +30,8 @@ public class usersController {
         }
     }
 
-//    @PostMapping("/loginUser")
-    @RequestMapping(value = "/loginUser    ", method = RequestMethod.POST)
+    @PostMapping("/loginUser")
+//    @RequestMapping(value = "/loginUser    ", method = RequestMethod.POST)
     @CrossOrigin(origins = "*")
     public Boolean loginUser(@RequestBody LoginRequest loginRequest){
         return userService.loginUser(loginRequest);
