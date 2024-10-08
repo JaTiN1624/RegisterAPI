@@ -53,6 +53,8 @@ public class UsersService {
 
         return savedUser;
     }
+
+//    send email to user for verification
     public void verify(String email, String otp) {
         Optional<Users> users = usersRepo.findByEmail(email);
         if (users.isEmpty()) {
@@ -67,6 +69,8 @@ public class UsersService {
         }
     }
 
+
+//    Generate OTP
     private String generatedOtp(){
         Random random = new Random();
         int otpValue = 100000 + random.nextInt(900000);
@@ -74,6 +78,7 @@ public class UsersService {
         return String.valueOf(otpValue);
     }
 
+//    send verification to user mail
     private void sendVerificationEmail(String email,String otp){
         String subject = "Email verification ";
         String body = "Your verification otp is: " + otp;
@@ -81,6 +86,7 @@ public class UsersService {
         emailService.sendEmail(email,subject,body);
     }
 
+//    login user  section
     public boolean loginUser(LoginRequest loginRequest){
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
@@ -88,13 +94,12 @@ public class UsersService {
 
         Optional<Users> user = usersRepo.findByEmail(email);
 
-        if (user.isEmpty()) {
+        if (user.isEmpty() || !user.get().getVerified()) {
             return false;
         }
 
         // Get the user object
         Users user1 = user.get();
-
         // Compare the password
 //        if (!passwordEncoder.matches(password, user1.getPassword())) {
 //            return false;
