@@ -11,12 +11,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+//@RequestMapping("/api")
 public class usersController {
 
     @Autowired
     UsersService userService;
-    @PostMapping("/addUser")
+//    @PostMapping("/addUser")
+    @RequestMapping(value = "/addUser    ", method = RequestMethod.POST)
     @CrossOrigin(origins = "*")
     public ResponseEntity<?> addUser(@RequestBody Users user){
 
@@ -29,7 +30,8 @@ public class usersController {
         }
     }
 
-    @PostMapping("/loginUser")
+//    @PostMapping("/loginUser")
+    @RequestMapping(value = "/loginUser    ", method = RequestMethod.POST)
     @CrossOrigin(origins = "*")
     public Boolean loginUser(@RequestBody LoginRequest loginRequest){
         return userService.loginUser(loginRequest);
