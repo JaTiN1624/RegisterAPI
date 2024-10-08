@@ -17,7 +17,7 @@ public class usersController {
     @Autowired
     UsersService userService;
     @PostMapping("/addUser")
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<?> addUser(@RequestBody Users user){
 
         try{
@@ -30,7 +30,7 @@ public class usersController {
     }
 
     @PostMapping("/loginUser")
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = "*")
     public Boolean loginUser(@RequestBody LoginRequest loginRequest){
         return userService.loginUser(loginRequest);
     }
