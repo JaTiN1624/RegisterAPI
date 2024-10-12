@@ -1,9 +1,11 @@
 package com.example.Invoice.System.Controller;
 
 
+import ch.qos.logback.core.model.Model;
 import com.example.Invoice.System.Entity.Users;
 import com.example.Invoice.System.Service.UsersService;
 import com.example.Invoice.System.requests.LoginRequest;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -44,6 +46,16 @@ public class usersController {
             return new ResponseEntity<>("User verified successfully",HttpStatus.OK);
         }catch (RuntimeException e){
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/resend-email")
+    public ResponseEntity<?> resendEmail(@RequestParam String email){
+        try{
+            userService.resendVerificationEmail(email);
+            return new ResponseEntity<>("Email resent successfully", HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 }

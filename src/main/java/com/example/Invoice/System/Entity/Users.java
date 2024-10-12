@@ -2,6 +2,8 @@ package com.example.Invoice.System.Entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
 public class Users {
@@ -27,15 +29,23 @@ public class Users {
     @Transient
     private String cPassword;
 
-
     private boolean verified;
 
-//    default Constructor
+    @Column(name = "created_at", nullable = false, updatable = false )
+    private LocalDateTime createdAt;
+
+
+    //    default Constructor
     public Users(){
 
     }
 
-//   Parameterized Constructor
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    //   Parameterized Constructor
     public Users(String firstName, String lastName, String email,String otp, String password, String cPassword, boolean verified) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -110,4 +120,13 @@ public class Users {
     public void setVerified(boolean verified) {
         this.verified = verified;
     }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
 }

@@ -7,13 +7,20 @@ import com.example.Invoice.System.requests.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+
+
 @Service
 public class UsersService {
-//    @Autowired
-//    LoginRequest loginRequest;
+
 
     private final EmailService emailService;
 
@@ -23,11 +30,6 @@ public class UsersService {
     public UsersService(EmailService emailService) {
         this.emailService = emailService;
     }
-
-
-//    public UsersService(EmailService emailService) {
-//        this.emailService = emailService;
-//    }
 
     // BCrypt encoder
 //    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -54,20 +56,6 @@ public class UsersService {
         return savedUser;
     }
 
-//    send email to user for verification
-    public void verify(String email, String otp) {
-        Optional<Users> users = usersRepo.findByEmail(email);
-        if (users.isEmpty()) {
-            throw new RuntimeException("User   not found!");
-        }
-        Users user = users.get();
-        if (user.getOtp().equals(otp)) {
-            user.setVerified(true); // Update verified to 1
-            usersRepo.save(user);
-        } else {
-            throw new RuntimeException("Invalid OTP!");
-        }
-    }
 
 
 //    Generate OTP
@@ -86,7 +74,65 @@ public class UsersService {
         emailService.sendEmail(email,subject,body);
     }
 
-//    login user  section
+
+
+    public void resendVerificationEmail(String email) {
+
+        // Check if the user exists and is not verified
+        Users user = usersRepo.findByEmail(email).orElse(null);
+
+        if(user == null){
+            throw new RuntimeException("Email doesn't Exist!");
+        }
+        if(user != null && user.getVerified()){
+            throw new RuntimeException("User already verified!");
+        }
+
+        if (user != null && !user.getVerified()) {
+
+            String newOtp = generatedOtp();
+            user.setOtp(String.valueOf(newOtp));
+
+            // Save the updated user
+            usersRepo.save(user);
+
+            // Send the verification email with the new token
+            sendVerificationEmail(email, String.valueOf(newOtp));
+        }
+    }
+
+    @Scheduled(fixedRate = 3600000) // Run every hour (3600000 ms = 1 hour)
+    @Transactional
+    public void deleteUnverifiedUsers() {
+        LocalDateTime cutoffTime = LocalDateTime.now().minusHours(24);
+
+        // Find all unverified users created more than 24 hours ago
+        List<Users> unverifiedUsers = usersRepo.findByVerifiedFalseAndCreatedAtBefore(cutoffTime);
+
+        if (!unverifiedUsers.isEmpty()) {
+            usersRepo.deleteAll(unverifiedUsers);
+            System.out.println("Deleted unverified users older than 24 hours.");
+        }
+    }
+
+
+    //    send email to user for verification
+    public void verify(String email, String otp) {
+        Optional<Users> users = usersRepo.findByEmail(email);
+        if (users.isEmpty()) {
+            throw new RuntimeException("User not found!");
+        }
+        Users user = users.get();
+        if (user.getOtp().equals(otp)) {
+            user.setVerified(true); // Update verified to 1
+            usersRepo.save(user);
+        } else {
+            throw new RuntimeException("Invalid OTP!");
+        }
+    }
+
+
+    //    login user  section
     public boolean loginUser(LoginRequest loginRequest){
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
@@ -100,6 +146,7 @@ public class UsersService {
 
         // Get the user object
         Users user1 = user.get();
+
         // Compare the password
 //        if (!passwordEncoder.matches(password, user1.getPassword())) {
 //            return false;
@@ -110,6 +157,5 @@ public class UsersService {
         }
         return true;
     }
-
 
 }
